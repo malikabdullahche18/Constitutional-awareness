@@ -11,7 +11,16 @@
 <script>
   const supabaseUrl = 'https://jyokbjeszptedhcfzdbk.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5b2tiamVzenB0ZWRoY2Z6ZGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMTg1NjksImV4cCI6MjA5MDY5NDU2OX0.cMcrYFrDU2Ah4n98ecjDWiUYqfUdV_BKbMVHpCwOS3c';
-  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  
+  // Wait for supabase to load
+  function initSupabase() {
+    if (window.supabase) {
+      return window.supabase.createClient(supabaseUrl, supabaseKey);
+    }
+    return null;
+  }
+  const supabase = initSupabase();
+  console.log('Supabase client:', supabase ? 'Ready' : 'Failed to initialize');
 </script>
 <style>
 /* ============================================================
@@ -1196,14 +1205,23 @@ function submitSurvey() {
     submitted_at: new Date().toISOString()
   };
 
-  supabase.from('responses').insert([payload]).then(({ error }) => {
+  // Check if supabase client exists
+  if (!supabase) {
+    console.error('Supabase client not initialized');
+    saveLocal(payload);
+    showThanks();
+    return;
+  }
+
+  supabase.from('responses').insert([payload]).then(({ data, error }) => {
+    console.log('Insert response:', data, error);
     if (error) {
       console.error('Supabase error:', error);
       saveLocal(payload);
     }
     showThanks();
   }).catch((err) => {
-    console.error('Error:', err);
+    console.error('Catch error:', err);
     saveLocal(payload);
     showThanks();
   });
