@@ -747,7 +747,6 @@ body {
     </div>
     <div class="ln-nav-right">
       <a href="admin.html" class="nav-link">Admin Login</a>
-      <a href="dashboard.html" class="nav-link">Dashboard</a>
     </div>
   </nav>
 
@@ -864,8 +863,8 @@ body {
       Your response has been recorded successfully.<br/>
       <strong>Your participation contributes to academic research</strong> on constitutional awareness among university students in Pakistan.
     </p>
-    <a href="index.html" class="ty-back">← Take Another Survey</a>
-    <a href="dashboard.html" class="ty-view-admin">View Analytics Dashboard →</a>
+    <a href="admin.html" class="ty-back">← Take Another Survey</a>
+    <a href="admin.html" class="ty-view-admin">Admin Login →</a>
   </div>
 </div>
 
@@ -1185,7 +1184,6 @@ function submitSurvey() {
   btn.disabled = true;
   btn.textContent = 'Saving…';
 
-  // Build payload
   const payload = {
     age: ans.age,
     gender: ans.gender,
@@ -1199,10 +1197,13 @@ function submitSurvey() {
   };
 
   supabase.from('responses').insert([payload]).then(({ error }) => {
-    if (error) {
-      console.error('Supabase error:', error);
-      saveLocal(payload);
-    }
+    btn.textContent = 'Saved!';
+    setTimeout(() => {
+      showThanks();
+    }, 500);
+  }).catch((err) => {
+    console.error('Error:', err);
+    saveLocal(payload);
     showThanks();
   });
 }
