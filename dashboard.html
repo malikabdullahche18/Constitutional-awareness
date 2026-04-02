@@ -9,17 +9,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const supabaseUrl = 'https://jyokbjeszptedhcfzdbk.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5b2tiamVzenB0ZWRoY2Z6ZGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMTg1NjksImV4cCI6MjA5MDY5NDU2OX0.cMcrYFrDU2Ah4n98ecjDWiUYqfUdV_BKbMVHpCwOS3c';
+  var _supabaseUrl = 'https://jyokbjeszptedhcfzdbk.supabase.co';
+  var _supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5b2tiamVzenB0ZWRoY2Z6ZGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMTg1NjksImV4cCI6MjA5MDY5NDU2OX0.cMcrYFrDU2Ah4n98ecjDWiUYqfUdV_BKbMVHpCwOS3c';
+  var _sbClient = null;
   
   function initSupabase() {
     if (window.supabase) {
-      return window.supabase.createClient(supabaseUrl, supabaseKey);
+      _sbClient = window.supabase.createClient(_supabaseUrl, _supabaseKey);
+      return _sbClient;
     }
     return null;
   }
-  const supabase = initSupabase();
-  console.log('Dashboard - Supabase client:', supabase ? 'Ready' : 'Failed to initialize');
+  initSupabase();
 </script>
 <style>
 :root {
@@ -521,12 +522,12 @@ async function loadAll() {
   const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
   
   try {
-    const queryPromise = supabase
+    const queryPromise = _sbClient
       .from('responses')
       .select('*')
       .order('id', { ascending: false });
     
-    const { data, error } = await Promise.race([queryPromise.timeout(8000), timeout(8000)]);
+    const { data, error } = await Promise.race([queryPromise, timeout(8000)]);
     
     if (data) rows = data;
   } catch (e) {

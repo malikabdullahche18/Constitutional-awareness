@@ -8,17 +8,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const supabaseUrl = 'https://jyokbjeszptedhcfzdbk.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5b2tiamVzenB0ZWRoY2Z6ZGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMTg1NjksImV4cCI6MjA5MDY5NDU2OX0.cMcrYFrDU2Ah4n98ecjDWiUYqfUdV_BKbMVHpCwOS3c';
+  var _supabaseUrl = 'https://jyokbjeszptedhcfzdbk.supabase.co';
+  var _supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5b2tiamVzenB0ZWRoY2Z6ZGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMTg1NjksImV4cCI6MjA5MDY5NDU2OX0.cMcrYFrDU2Ah4n98ecjDWiUYqfUdV_BKbMVHpCwOS3c';
+  var _sbClient = null;
   
   function initSupabase() {
     if (window.supabase) {
-      return window.supabase.createClient(supabaseUrl, supabaseKey);
+      _sbClient = window.supabase.createClient(_supabaseUrl, _supabaseKey);
+      return _sbClient;
     }
     return null;
   }
-  const supabase = initSupabase();
-  console.log('Admin - Supabase client:', supabase ? 'Ready' : 'Failed to initialize');
+  initSupabase();
 </script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -199,7 +200,7 @@ async function login() {
   }
   
   // Check if supabase client exists
-  if (!supabase) {
+  if (!_sbClient) {
     console.error('Supabase client not initialized');
     err.innerHTML = '<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="#dc2626" stroke-width="1.4"/><path d="M7.5 4v4M7.5 10.5v.2" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/></svg> Failed to connect. Check console for errors.';
     err.classList.add('show');
@@ -213,7 +214,7 @@ async function login() {
   const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
   
   try {
-    const queryPromise = supabase
+    const queryPromise = _sbClient
       .from('admins')
       .select('*')
       .eq('username', usr)

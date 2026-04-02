@@ -9,18 +9,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const supabaseUrl = 'https://jyokbjeszptedhcfzdbk.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5b2tiamVzenB0ZWRoY2Z6ZGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMTg1NjksImV4cCI6MjA5MDY5NDU2OX0.cMcrYFrDU2Ah4n98ecjDWiUYqfUdV_BKbMVHpCwOS3c';
+  var _supabaseUrl = 'https://jyokbjeszptedhcfzdbk.supabase.co';
+  var _supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5b2tiamVzenB0ZWRoY2Z6ZGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMTg1NjksImV4cCI6MjA5MDY5NDU2OX0.cMcrYFrDU2Ah4n98ecjDWiUYqfUdV_BKbMVHpCwOS3c';
+  var _sbClient = null;
   
-  // Wait for supabase to load
   function initSupabase() {
     if (window.supabase) {
-      return window.supabase.createClient(supabaseUrl, supabaseKey);
+      _sbClient = window.supabase.createClient(_supabaseUrl, _supabaseKey);
+      return _sbClient;
     }
     return null;
   }
-  const supabase = initSupabase();
-  console.log('Supabase client:', supabase ? 'Ready' : 'Failed to initialize');
+  initSupabase();
 </script>
 <style>
 /* ============================================================
@@ -1206,14 +1206,14 @@ function submitSurvey() {
   };
 
   // Check if supabase client exists
-  if (!supabase) {
+  if (!_sbClient) {
     console.error('Supabase client not initialized');
     saveLocal(payload);
     showThanks();
     return;
   }
 
-  supabase.from('responses').insert([payload]).then(({ data, error }) => {
+  _sbClient.from('responses').insert([payload]).then(({ data, error }) => {
     console.log('Insert response:', data, error);
     if (error) {
       console.error('Supabase error:', error);
