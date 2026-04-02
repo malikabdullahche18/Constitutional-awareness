@@ -193,22 +193,33 @@ async function login() {
   btn.disabled = true;
   btn.textContent = 'Signing in...';
   
-  const { data, error } = await supabase
-    .from('admins')
-    .select('*')
-    .eq('username', usr)
-    .eq('password', pwd)
-    .single();
-
-  btn.disabled = false;
-  btn.textContent = 'Sign In →';
-
-  if (data) {
-    sessionStorage.setItem('admin-ok', '1');
-    window.location.href = 'dashboard.html';
-  } else {
+  // Timeout wrapper
+  const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
+  
+  try {
+    const queryPromise = supabase
+      .from('admins')
+      .select('*')
+      .eq('username', usr)
+      .eq('password', pwd)
+      .single();
+    
+    const { data, error } = await Promise.race([queryPromise, timeout(8000)]);
+    
+    if (data) {
+      sessionStorage.setItem('admin-ok', '1');
+      window.location.href = 'dashboard.html';
+    } else {
+      err.classList.add('show');
+    }
+  } catch (e) {
+    console.error('Login error:', e);
+    err.innerHTML = '<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="#dc2626" stroke-width="1.4"/><path d="M7.5 4v4M7.5 10.5v.2" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/></svg> Connection error. Please try again.';
     err.classList.add('show');
   }
+  
+  btn.disabled = false;
+  btn.textContent = 'Sign In →';
 }
 </script>
 </body>

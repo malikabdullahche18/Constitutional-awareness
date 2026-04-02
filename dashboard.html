@@ -508,12 +508,22 @@ async function loadAll() {
   document.getElementById('live-badge').innerHTML = '<span class="spinner"></span>';
 
   let rows = [];
-  const { data, error } = await supabase
-    .from('responses')
-    .select('*')
-    .order('id', { ascending: false });
-
-  if (data) rows = data;
+  
+  // Timeout wrapper
+  const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
+  
+  try {
+    const queryPromise = supabase
+      .from('responses')
+      .select('*')
+      .order('id', { ascending: false });
+    
+    const { data, error } = await Promise.race([queryPromise.timeout(8000), timeout(8000)]);
+    
+    if (data) rows = data;
+  } catch (e) {
+    console.error('Load error:', e);
+  }
 
   allData = rows;
   populateDeptFilter(rows);

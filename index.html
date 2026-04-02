@@ -1197,10 +1197,11 @@ function submitSurvey() {
   };
 
   supabase.from('responses').insert([payload]).then(({ error }) => {
-    btn.textContent = 'Saved!';
-    setTimeout(() => {
-      showThanks();
-    }, 500);
+    if (error) {
+      console.error('Supabase error:', error);
+      saveLocal(payload);
+    }
+    showThanks();
   }).catch((err) => {
     console.error('Error:', err);
     saveLocal(payload);
